@@ -11,6 +11,7 @@ from flask_login import logout_user
 from forms import RegistrationForm
 from forms import LoginForm
 from forms import CreateTableForm
+from forms import DeleteTableForm
 from mockdbhelper import MockDBHelper as DBHelper
 from passwordhelper import PasswordHelper
 from bitlyhelper import BitlyHelper
@@ -89,7 +90,7 @@ def dashboard_resolve():
 @login_required
 def account():
     tables = DB.get_tables(current_user.get_id())
-    return render_template("account.html", createtableform=CreateTableForm(), tables=tables)
+    return render_template("account.html", createtableform=CreateTableForm(), deletetableform=DeleteTableForm(),  tables=tables)
 
 @app.route("/account/createtable", methods=["POST"])
 @login_required
@@ -100,14 +101,19 @@ def account_createtable():
         new_url = BH.shorten_url(config.base_url + "newrequest/" + tableid)
         DB.update_table(tableid, new_url)
         return redirect(url_for('account'))
-    return render_template("account.html", createtableform=form, tables=DB.get_tables(current_user.get_id()))
+    return render_template("account.html", createtableform=form, deletetableform= DeleteTableForm(), tables=DB.get_tables(current_user.get_id()))
 
-@app.route("/account/deletetable")
+@app.route("/account/deletetable", methods=["POST"])
 @login_required
 def account_deletetable():
-    tableid = request.args.get("tableid")
-    DB.delete_table(tableid)
-    return redirect(url_for('account'))
+    #tableid = request.args.get("tableid")
+    #DB.delete_table(tableid)
+    #return redirect(url_for('account'))
+    form = DeleteTableForm(request.form)
+    if form.validate():
+        DB.delete_table(form.tablenumber.data)
+        return redirect(url_for('account'))
+    return render_template("account.html", deletetableform=form, createtableform=CreateTableForm(), tables=DB.get_tables(current_user.get_id()))
 
 @app.route("/newrequest/<tid>")
 def new_request(tid):

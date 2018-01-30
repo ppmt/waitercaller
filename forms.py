@@ -22,5 +22,5 @@ class CreateTableForm(Form):
     submit = SubmitField('createtablesubmit', validators=[validators.DataRequired()])
 
 class DeleteTableForm(Form):
-    tablenumber = HiddenField('tableid')
+    tablenumber = HiddenField('tablenumber')
     submit = SubmitField('submit', [validators.DataRequired()])
